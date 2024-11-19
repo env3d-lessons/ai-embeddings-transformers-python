@@ -2,6 +2,12 @@ import pandas as pd
 import numpy as np
 from transformers import pipeline
 
+# Load the model and setup the embedder
+print("Loading the model...")
+model_name = "sentence-transformers/all-MiniLM-L6-v2"
+embedder = pipeline("feature-extraction", model=model_name)
+print(f"Model '{model_name}' loaded successfully.")
+
 def cosine_similarity(vec1, vec2):
     # Normalize the vectors
     vec1_normalized = vec1 / ( np.linalg.norm(vec1) + 1e-16 )
@@ -19,12 +25,7 @@ def distance(vec1, vec2):
     # Calculate Euclidean distance on normalized vectors
     return np.linalg.norm(vec1_normalized - vec2_normalized)
 
-def main():
-    print("Loading the model...")
-    model_name = "sentence-transformers/all-MiniLM-L6-v2"
-    embedder = pipeline("feature-extraction", model=model_name)
-    print(f"Model '{model_name}' loaded successfully.")
-    
+def prepare_dataset():
     # Predefined reference strings
     reference_strings = [
         "Hello, world!",
@@ -44,7 +45,21 @@ def main():
         "Embedding": reference_embeddings
     })
     print("Reference embeddings ready.\n")
-    
+    return df
+
+def compare(input_text, dataset):
+    # Generate embedding for the input text
+    input_embedding = embedder(input_text)[0][0]  # Use the first embedding directly
+            
+    # Calculate similarities
+    dataset["Similarity"] = dataset.apply( lambda row: distance(input_embedding, row['Embedding']), axis=1)
+            
+    # Sort by similarity
+    df_sorted = dataset.sort_values(by="Similarity")
+    return df_sorted
+
+def ui():
+    dataset = prepare_dataset()
     print("Enter text to compare (type 'exit' to quit):")
     while True:
         try:
@@ -53,23 +68,16 @@ def main():
             if text.lower() == "exit":
                 print("Exiting...")
                 break
-            
-            # Generate embedding for the input text
-            input_embedding = embedder(text)[0][0]  # Use the first embedding directly
-            
-            # Calculate similarities
-            df["Similarity"] = df.apply( lambda row: distance(input_embedding, row['Embedding']), axis=1)
-            
-            # Sort by similarity
-            df_sorted = df.sort_values(by="Similarity")
+
+            df = compare(text, dataset)
             
             # Display results
             print("\nSimilarities:")
-            print(df_sorted[["Reference String", "Similarity"]])
-            print(f"\nMost similar: '{df_sorted.iloc[0]['Reference String']}' with distance {df_sorted.iloc[0]['Similarity']:.4f}\n")
+            print(df[["Reference String", "Similarity"]])
+            print(f"\nMost similar: '{df.iloc[0]['Reference String']}' with distance {df.iloc[0]['Similarity']:.4f}\n")
         except Exception as e:
             print(f"Error: {e}")
             continue
 
 if __name__ == "__main__":
-    main()
+    ui()
