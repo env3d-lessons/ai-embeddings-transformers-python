@@ -23,7 +23,8 @@ def distance(vec1, vec2):
     vec2_normalized = vec2 / ( np.linalg.norm(vec2) + 1e-16 )
      
     # Calculate Euclidean distance on normalized vectors
-    return np.linalg.norm(vec1_normalized - vec2_normalized)
+    #return np.linalg.norm(vec1_normalized - vec2_normalized)
+    return cosine_similarity(vec1, vec2)
 
 def prepare_dataset():
     # Predefined reference strings

@@ -4,6 +4,12 @@ Embeddings are a way to represent data, especially text or words, as high-dimens
 
 This code demonstrates how to generate and use embeddings for text data. By converting words or sentences into numerical vectors, you can apply various machine learning techniques.
 
+We are relying on the *transformers* module, so make sure you install it using:
+
+```
+pip install transformers
+```
+
 ### Key Concepts:
 - **Embeddings**: Fixed-size vector representations of data (e.g., words, sentences).
 - **Dimensionality**: Number of values in the vector (features), usually in the hundreds or thousands.
@@ -35,15 +41,18 @@ The main.py file contains one way for creating a semantic search engine, with a 
 # Exercise 1
 
 The file *prompts.csv* contains a list of prompts appropriate for feeding into LLMs such as ChatGPT. 
-Turn your app into a "prompt generator" by output a prompt from prompts.csv that is most similar to the 
-user's input sentence.
+Modify the prepare_dataset() function to load data from `prompts.csv` instead of the test dataset.
+Be sure to include an *embedding* column.
+
+Then turn your app into a "prompt generator" by output a prompt from prompts.csv that is most similar to the 
+user's input sentence.  
 
 # Exercise 2
 
 The current file uses *euclidean distance* to compare similarities, which is basically the geometric 
-distance between points.  This approach is intuitive but is not the most performant. I have provided 
-you with a function called *cosine_similarity()* which is much faster because of the use of dot product.
+distance between points.  This approach is intuitive but is not the most performant. Instead, most AI
+systems use *cosine_similarity* which is much faster because of the use of dot product.
 Simply put, the dot product of 2 normalized vector calculate the cosine of the angle between the 2 vectors.
 Meaning that a value of 1 means they are pointing in the exact same direction because cosine of 0 is 1?
 
-Change the code above to use dot product instead of euclidean distance.
+Change the distance function to use cosine similarity instead of euclidean distance.
